@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src *; img-src 'self' data: https:">
+  <title>Chromattica [beta]</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Profile Sidebar -->
+    <div id="sidebar">
+      <div id="profile-list"></div>
+      <div id="add-menu-container">
+        <button id="add-btn" class="add-btn" title="Add">+</button>
+        <div id="add-menu" class="hidden">
+          <button id="add-account-option" class="menu-option">Add Account</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- App Slide-out Panel -->
+    <div id="app-slideout" class="hidden">
+      <div id="slideout-apps"></div>
+      <button id="slideout-add-app" class="slideout-add-btn">+ Add App</button>
+    </div>
+
+    <!-- Main Content Area -->
+    <div id="main-content">
+      <!-- Tab Bar -->
+      <div id="tab-bar">
+        <div id="tab-bar-profile">
+          <div id="tab-bar-avatar"></div>
+        </div>
+        <div id="tabs-container"></div>
+        <button id="add-tab-btn" class="add-tab-btn" title="New Tab">+</button>
+        <div id="tab-bar-spacer"></div>
+        <button id="bitwarden-btn" class="bitwarden-btn" title="Bitwarden Vault">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3.75 0A3.75 3.75 0 0 0 0 3.75v16.5A3.75 3.75 0 0 0 3.75 24h16.5A3.75 3.75 0 0 0 24 20.25V3.75A3.75 3.75 0 0 0 20.25 0H3.75zm1.5 3h13.5c.83 0 1.5.67 1.5 1.5v9.75c0 2.9-2.35 5.25-5.25 5.25h-6c-2.9 0-5.25-2.35-5.25-5.25V4.5c0-.83.67-1.5 1.5-1.5zm1.5 2.25v9a3 3 0 0 0 3 3h4.5a3 3 0 0 0 3-3v-9H6.75z"/>
+          </svg>
+        </button>
+        <button id="lastpass-btn" class="lastpass-btn" title="LastPass Vault">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21.75 0H2.25A2.25 2.25 0 0 0 0 2.25v19.5A2.25 2.25 0 0 0 2.25 24h19.5A2.25 2.25 0 0 0 24 21.75V2.25A2.25 2.25 0 0 0 21.75 0zM9 19.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0-4.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0-4.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm6 9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0-4.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0-4.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
+          </svg>
+        </button>
+        <div id="app-logo">
+          <img src="icons/chromattica_wordmark.png" alt="Chromattica"><span class="beta-tag">[beta]</span>
+        </div>
+      </div>
+
+      <!-- Bitwarden Panel -->
+      <div id="bitwarden-panel" class="hidden">
+        <div id="bitwarden-header">
+          <span>Bitwarden Vault</span>
+          <button id="bitwarden-close" class="bitwarden-close-btn">×</button>
+        </div>
+        <webview id="bitwarden-webview" src="https://vault.bitwarden.com/" partition="persist:bitwarden-vault"></webview>
+      </div>
+
+      <!-- LastPass Panel -->
+      <div id="lastpass-panel" class="hidden">
+        <div id="lastpass-header">
+          <span>LastPass Vault</span>
+          <button id="lastpass-close" class="lastpass-close-btn">×</button>
+        </div>
+        <webview id="lastpass-webview" src="https://lastpass.com/vault/" partition="persist:lastpass-vault"></webview>
+      </div>
+
+      <!-- Navigation Bar (address bar, back/forward/refresh) -->
+      <div id="nav-bar">
+        <div id="nav-buttons">
+          <button id="nav-back" class="nav-btn" title="Back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+          </button>
+          <button id="nav-forward" class="nav-btn" title="Forward">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+            </svg>
+          </button>
+          <button id="nav-refresh" class="nav-btn" title="Refresh">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+            </svg>
+          </button>
+        </div>
+        <div id="address-bar-container">
+          <input type="text" id="address-bar" placeholder="Enter URL or search...">
+        </div>
+      </div>
+
+      <!-- Bookmarks Bar -->
+      <div id="bookmarks-bar" class="hidden">
+        <button id="import-bookmarks-btn" class="import-bookmarks-btn" title="Import bookmarks from Chrome">Import</button>
+        <div id="bookmarks-list"></div>
+        <button id="add-bookmark-btn" class="add-bookmark-btn" title="Add Bookmark">+</button>
+      </div>
+
+      <!-- Extension Install Bar (appears when on Chrome Web Store extension page) -->
+      <div id="extension-install-bar" class="hidden">
+        <div class="install-bar-content">
+          <span class="install-bar-icon">🧩</span>
+          <span class="install-bar-text">Extension detected: <strong id="install-bar-name">Extension</strong></span>
+          <button id="install-bar-btn" class="install-bar-button">Install in Chromattica</button>
+        </div>
+      </div>
+
+      <!-- Browser Views Container -->
+      <div id="browser-container">
+        <div id="empty-state">
+          <div class="empty-icon">+</div>
+          <h2>Add your first Google account</h2>
+          <p>Each account gets isolated cookies, sessions, and extensions.</p>
+          <button id="empty-add-btn" class="primary-btn">Add Account</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Profile Modal -->
+    <div id="modal-overlay" class="hidden">
+      <div id="modal">
+        <h3>New Account</h3>
+        <input type="text" id="profile-name-input" placeholder="Account Name (e.g., Work, Personal)">
+        <div id="color-picker">
+          <div class="color-option" data-color="#3B82F6" style="background: #3B82F6"></div>
+          <div class="color-option" data-color="#EF4444" style="background: #EF4444"></div>
+          <div class="color-option" data-color="#F97316" style="background: #F97316"></div>
+          <div class="color-option" data-color="#22C55E" style="background: #22C55E"></div>
+          <div class="color-option" data-color="#A855F7" style="background: #A855F7"></div>
+          <div class="color-option" data-color="#EC4899" style="background: #EC4899"></div>
+        </div>
+        <div class="modal-buttons">
+          <button id="cancel-btn" class="secondary-btn">Cancel</button>
+          <button id="create-btn" class="primary-btn">Add & Sign In</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="edit-profile-overlay" class="hidden">
+      <div id="edit-profile-modal">
+        <h3>Edit Account</h3>
+        <input type="text" id="edit-profile-name" placeholder="Account Name">
+        <div id="edit-color-picker">
+          <div class="color-option" data-color="#3B82F6" style="background: #3B82F6"></div>
+          <div class="color-option" data-color="#EF4444" style="background: #EF4444"></div>
+          <div class="color-option" data-color="#F97316" style="background: #F97316"></div>
+          <div class="color-option" data-color="#22C55E" style="background: #22C55E"></div>
+          <div class="color-option" data-color="#A855F7" style="background: #A855F7"></div>
+          <div class="color-option" data-color="#EC4899" style="background: #EC4899"></div>
+        </div>
+        <div id="menu-order-container">
+          <label for="menu-order-select">Menu Order</label>
+          <select id="menu-order-select"></select>
+        </div>
+        <div class="modal-buttons">
+          <button id="delete-profile-btn" class="danger-btn">Delete Account</button>
+          <button id="edit-cancel-btn" class="secondary-btn">Cancel</button>
+          <button id="edit-save-btn" class="primary-btn">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- App Picker Modal -->
+    <div id="app-modal-overlay" class="hidden">
+      <div id="app-modal">
+        <h3>Add App</h3>
+        <input type="text" id="app-search-input" placeholder="Search apps...">
+        <div id="app-grid">
+          <!-- Google Apps -->
+          <div class="app-section">
+            <h4>Google Apps</h4>
+            <div class="app-options">
+              <button class="app-option" data-url="https://calendar.google.com" data-name="Calendar" data-icon="icons/googlecalendar.svg">
+                <img class="app-icon" src="icons/googlecalendar.svg" alt="Calendar"><span>Calendar</span>
+              </button>
+              <button class="app-option" data-url="https://contacts.google.com" data-name="Contacts" data-icon="icons/googlecontacts.svg">
+                <img class="app-icon" src="icons/googlecontacts.svg" alt="Contacts"><span>Contacts</span>
+              </button>
+              <button class="app-option" data-url="https://docs.google.com" data-name="Docs" data-icon="icons/googledocs.svg">
+                <img class="app-icon" src="icons/googledocs.svg" alt="Docs"><span>Docs</span>
+              </button>
+              <button class="app-option" data-url="https://drive.google.com" data-name="Drive" data-icon="icons/googledrive.svg">
+                <img class="app-icon" src="icons/googledrive.svg" alt="Drive"><span>Drive</span>
+              </button>
+              <button class="app-option" data-url="https://gemini.google.com" data-name="Gemini" data-icon="icons/googlegemini.svg">
+                <img class="app-icon" src="icons/googlegemini.svg" alt="Gemini"><span>Gemini</span>
+              </button>
+              <button class="app-option" data-url="https://keep.google.com" data-name="Keep" data-icon="icons/googlekeep.svg">
+                <img class="app-icon" src="icons/googlekeep.svg" alt="Keep"><span>Keep</span>
+              </button>
+              <button class="app-option" data-url="https://meet.google.com" data-name="Meet" data-icon="icons/googlemeet.svg">
+                <img class="app-icon" src="icons/googlemeet.svg" alt="Meet"><span>Meet</span>
+              </button>
+              <button class="app-option" data-url="https://messages.google.com" data-name="Messages" data-icon="icons/googlemessages.svg">
+                <img class="app-icon" src="icons/googlemessages.svg" alt="Messages"><span>Messages</span>
+              </button>
+              <button class="app-option" data-url="https://photos.google.com" data-name="Photos" data-icon="icons/googlephotos.svg">
+                <img class="app-icon" src="icons/googlephotos.svg" alt="Photos"><span>Photos</span>
+              </button>
+              <button class="app-option" data-url="https://sheets.google.com" data-name="Sheets" data-icon="icons/googlesheets.svg">
+                <img class="app-icon" src="icons/googlesheets.svg" alt="Sheets"><span>Sheets</span>
+              </button>
+              <button class="app-option" data-url="https://slides.google.com" data-name="Slides" data-icon="icons/googleslides.svg">
+                <img class="app-icon" src="icons/googleslides.svg" alt="Slides"><span>Slides</span>
+              </button>
+              <button class="app-option" data-url="https://translate.google.com" data-name="Translate" data-icon="icons/googletranslate.svg">
+                <img class="app-icon" src="icons/googletranslate.svg" alt="Translate"><span>Translate</span>
+              </button>
+              <button class="app-option" data-url="https://youtube.com" data-name="YouTube" data-icon="icons/youtube.svg">
+                <img class="app-icon" src="icons/youtube.svg" alt="YouTube"><span>YouTube</span>
+              </button>
+              <button class="app-option" data-url="https://music.youtube.com" data-name="YouTube Music" data-icon="icons/youtubemusic.svg">
+                <img class="app-icon" src="icons/youtubemusic.svg" alt="YouTube Music"><span>YT Music</span>
+              </button>
+            </div>
+          </div>
+          <!-- Other Apps -->
+          <div class="app-section">
+            <h4>Popular Apps</h4>
+            <div class="app-options">
+              <button class="app-option" data-url="https://start.atlassian.com" data-name="Atlassian" data-icon="icons/atlassian.svg">
+                <img class="app-icon" src="icons/atlassian.svg" alt="Atlassian"><span>Atlassian</span>
+              </button>
+              <button class="app-option" data-url="https://bitbucket.org" data-name="Bitbucket" data-icon="icons/bitbucket.svg">
+                <img class="app-icon" src="icons/bitbucket.svg" alt="Bitbucket"><span>Bitbucket</span>
+              </button>
+              <button class="app-option" data-url="https://bsky.app" data-name="Bluesky" data-icon="icons/bluesky.svg">
+                <img class="app-icon" src="icons/bluesky.svg" alt="Bluesky"><span>Bluesky</span>
+              </button>
+              <button class="app-option" data-url="https://discord.com/app" data-name="Discord" data-icon="icons/discord.svg">
+                <img class="app-icon" src="icons/discord.svg" alt="Discord"><span>Discord</span>
+              </button>
+              <button class="app-option" data-url="https://facebook.com" data-name="Facebook" data-icon="icons/facebook.svg">
+                <img class="app-icon" src="icons/facebook.svg" alt="Facebook"><span>Facebook</span>
+              </button>
+              <button class="app-option" data-url="https://github.com" data-name="GitHub" data-icon="icons/github.svg">
+                <img class="app-icon" src="icons/github.svg" alt="GitHub"><span>GitHub</span>
+              </button>
+              <button class="app-option" data-url="https://jira.atlassian.com" data-name="Jira" data-icon="icons/jira.svg">
+                <img class="app-icon" src="icons/jira.svg" alt="Jira"><span>Jira</span>
+              </button>
+              <button class="app-option" data-url="https://quickbooks.intuit.com" data-name="QuickBooks" data-icon="icons/quickbooks.svg">
+                <img class="app-icon" src="icons/quickbooks.svg" alt="QuickBooks"><span>QuickBooks</span>
+              </button>
+              <button class="app-option" data-url="https://reddit.com" data-name="Reddit" data-icon="icons/reddit.svg">
+                <img class="app-icon" src="icons/reddit.svg" alt="Reddit"><span>Reddit</span>
+              </button>
+              <button class="app-option" data-url="https://stackexchange.com" data-name="Stack Exchange" data-icon="icons/stackexchange.svg">
+                <img class="app-icon" src="icons/stackexchange.svg" alt="Stack Exchange"><span>Stack Exchange</span>
+              </button>
+              <button class="app-option" data-url="https://stackoverflow.com" data-name="Stack Overflow" data-icon="icons/stackoverflow.svg">
+                <img class="app-icon" src="icons/stackoverflow.svg" alt="Stack Overflow"><span>Stack Overflow</span>
+              </button>
+              <button class="app-option" data-url="https://web.telegram.org" data-name="Telegram" data-icon="icons/telegram.svg">
+                <img class="app-icon" src="icons/telegram.svg" alt="Telegram"><span>Telegram</span>
+              </button>
+              <button class="app-option" data-url="https://x.com" data-name="X" data-icon="icons/x.svg">
+                <img class="app-icon" src="icons/x.svg" alt="X"><span>X</span>
+              </button>
+            </div>
+          </div>
+          <!-- Custom URL -->
+          <div class="app-section">
+            <h4>Custom App</h4>
+            <div class="custom-app-input">
+              <input type="text" id="custom-app-name" placeholder="App name">
+              <input type="text" id="custom-app-url" placeholder="https://...">
+              <button id="add-custom-app-btn" class="primary-btn">Add</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-buttons">
+          <button id="app-cancel-btn" class="secondary-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Extensions Modal -->
+    <div id="extensions-modal-overlay" class="hidden">
+      <div id="extensions-modal">
+        <h3>Manage Extensions</h3>
+        <p class="modal-subtitle">Extensions are installed per account and run in that account's isolated session.</p>
+        <div id="installed-extensions">
+          <div class="extensions-empty">No extensions installed for this account.</div>
+        </div>
+        <div class="modal-buttons extensions-modal-buttons">
+          <button id="browse-webstore-btn" class="webstore-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 6px;">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+            </svg>
+            Browse Chrome Web Store
+          </button>
+          <button id="add-extension-btn" class="secondary-btn">Add from Folder</button>
+          <button id="extensions-close-btn" class="secondary-btn">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dropdown Portal (renders above webviews) -->
+  <div id="dropdown-portal"></div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
