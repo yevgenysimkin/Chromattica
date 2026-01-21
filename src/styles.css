@@ -161,7 +161,7 @@ body {
   transition: background-color 0.2s ease;
 }
 
-/* Account Color Frame - wraps around left side and connects to top */
+/* Account Color Frame - wraps around corner and selected account */
 #account-color-frame {
   position: fixed;
   top: 0;
@@ -170,35 +170,50 @@ body {
   z-index: 1001;
 }
 
-/* Vertical line along left edge */
-#frame-vertical {
+/* Top fill - behind traffic lights and connecting to top bar */
+#frame-top-fill {
   position: fixed;
   left: 0;
-  width: 4px;
-  background: var(--account-color, transparent);
-  transition: background-color 0.2s ease, top 0.2s ease, height 0.2s ease;
-}
-
-/* Horizontal line going right, below traffic lights */
-#frame-corner-bottom {
-  position: fixed;
-  left: 0;
-  top: 40px;
+  top: 0;
+  right: 0;
   height: 4px;
-  width: 88px;
   background: var(--account-color, transparent);
   transition: background-color 0.2s ease;
 }
 
-/* Vertical line going up to meet the top bar, right of traffic lights */
-#frame-corner-right {
+/* Vertical line down left side of sidebar to account */
+#frame-sidebar-left {
   position: fixed;
-  left: 84px;
+  left: 0;
   top: 4px;
   width: 4px;
-  height: 40px;
   background: var(--account-color, transparent);
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, height 0.2s ease;
+}
+
+/* Account bracket - top edge (left to right across menu) */
+#frame-account-top {
+  position: fixed;
+  height: 4px;
+  background: var(--account-color, transparent);
+  transition: background-color 0.2s ease, top 0.2s ease, left 0.2s ease, width 0.2s ease;
+}
+
+/* Account bracket - right edge (down the right side of account) */
+#frame-account-right {
+  position: fixed;
+  width: 4px;
+  background: var(--account-color, transparent);
+  transition: background-color 0.2s ease, top 0.2s ease, left 0.2s ease, height 0.2s ease;
+}
+
+/* Account bracket - bottom edge (right to left edge of screen) */
+#frame-account-bottom {
+  position: fixed;
+  left: 0;
+  height: 4px;
+  background: var(--account-color, transparent);
+  transition: background-color 0.2s ease, top 0.2s ease, width 0.2s ease;
 }
 
 /* Profile indicator in tab bar */

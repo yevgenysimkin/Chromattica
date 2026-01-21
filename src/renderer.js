@@ -219,17 +219,25 @@ function render() {
 // Update the avatar shown in the tab bar to indicate current profile
 function renderTabBarAvatar() {
   const accountColorLine = document.getElementById('account-color-line');
-  const frameVertical = document.getElementById('frame-vertical');
-  const frameCornerBottom = document.getElementById('frame-corner-bottom');
-  const frameCornerRight = document.getElementById('frame-corner-right');
+  const frameTopFill = document.getElementById('frame-top-fill');
+  const frameSidebarLeft = document.getElementById('frame-sidebar-left');
+  const frameAccountTop = document.getElementById('frame-account-top');
+  const frameAccountRight = document.getElementById('frame-account-right');
+  const frameAccountBottom = document.getElementById('frame-account-bottom');
+
+  const setFrameColor = (color) => {
+    accountColorLine.style.setProperty('--account-color', color);
+    frameTopFill.style.setProperty('--account-color', color);
+    frameSidebarLeft.style.setProperty('--account-color', color);
+    frameAccountTop.style.setProperty('--account-color', color);
+    frameAccountRight.style.setProperty('--account-color', color);
+    frameAccountBottom.style.setProperty('--account-color', color);
+  };
 
   if (!selectedProfileId) {
     tabBarAvatar.classList.add('empty');
     tabBarAvatar.innerHTML = '';
-    accountColorLine.style.setProperty('--account-color', 'transparent');
-    frameVertical.style.setProperty('--account-color', 'transparent');
-    frameCornerBottom.style.setProperty('--account-color', 'transparent');
-    frameCornerRight.style.setProperty('--account-color', 'transparent');
+    setFrameColor('transparent');
     return;
   }
 
@@ -237,32 +245,39 @@ function renderTabBarAvatar() {
   if (!profile) {
     tabBarAvatar.classList.add('empty');
     tabBarAvatar.innerHTML = '';
-    accountColorLine.style.setProperty('--account-color', 'transparent');
-    frameVertical.style.setProperty('--account-color', 'transparent');
-    frameCornerBottom.style.setProperty('--account-color', 'transparent');
-    frameCornerRight.style.setProperty('--account-color', 'transparent');
+    setFrameColor('transparent');
     return;
   }
 
   tabBarAvatar.classList.remove('empty');
   tabBarAvatar.style.background = profile.color;
 
-  // Set the top bar color line
-  accountColorLine.style.setProperty('--account-color', profile.color);
+  // Set all frame colors
+  setFrameColor(profile.color);
 
-  // Set the frame colors
-  frameVertical.style.setProperty('--account-color', profile.color);
-  frameCornerBottom.style.setProperty('--account-color', profile.color);
-  frameCornerRight.style.setProperty('--account-color', profile.color);
-
-  // Position the vertical frame line from the selected profile button to the corner
+  // Position the frame elements based on selected profile button
   const profileIndex = profiles.findIndex(p => p.id === selectedProfileId);
   const profileBtn = profileList.children[profileIndex];
   if (profileBtn) {
     const btnRect = profileBtn.getBoundingClientRect();
-    const startY = btnRect.top;
-    frameVertical.style.top = '44px'; // Just below the corner routing
-    frameVertical.style.height = `${startY - 44}px`;
+    const sidebarWidth = 88;
+
+    // Sidebar left line: from top (y:4) down to top-left of account
+    frameSidebarLeft.style.height = `${btnRect.top - 4}px`;
+
+    // Account top bracket: from left edge (x:0) to right side of sidebar
+    frameAccountTop.style.top = `${btnRect.top}px`;
+    frameAccountTop.style.left = '0';
+    frameAccountTop.style.width = `${sidebarWidth}px`;
+
+    // Account right bracket: down the right side of the account
+    frameAccountRight.style.top = `${btnRect.top}px`;
+    frameAccountRight.style.left = `${sidebarWidth - 4}px`;
+    frameAccountRight.style.height = `${btnRect.height}px`;
+
+    // Account bottom bracket: from right side to left edge
+    frameAccountBottom.style.top = `${btnRect.bottom - 4}px`;
+    frameAccountBottom.style.width = `${sidebarWidth}px`;
   }
 
   if (profile.avatar) {
