@@ -24,6 +24,28 @@ const extensionsBasePath = path.join(app.getPath('userData'), 'extensions');
 // Track loaded extensions per profile session
 const loadedExtensions = {}; // { profileId: [{ id, name, icon, path }] }
 
+// Track sessions that have had permission handlers set up
+const configuredSessions = new Set();
+
+// Set up media permission handlers for a session (camera, microphone, etc.)
+function setupSessionPermissions(ses) {
+  // Only configure each session once
+  const sessionId = ses.storagePath || 'default';
+  if (configuredSessions.has(sessionId)) return;
+  configuredSessions.add(sessionId);
+
+  ses.setPermissionRequestHandler((webContents, permission, callback) => {
+    // Allow camera, microphone, and media permissions
+    const allowedPermissions = ['media', 'mediaKeySystem', 'geolocation', 'notifications'];
+    callback(allowedPermissions.includes(permission));
+  });
+
+  ses.setPermissionCheckHandler((webContents, permission, requestingOrigin) => {
+    const allowedPermissions = ['media', 'mediaKeySystem', 'geolocation', 'notifications'];
+    return allowedPermissions.includes(permission);
+  });
+}
+
 // Ensure extensions directory exists
 if (!fs.existsSync(extensionsBasePath)) {
   fs.mkdirSync(extensionsBasePath, { recursive: true });
@@ -93,7 +115,11 @@ ipcMain.handle('save-profiles', (event, profiles) => {
 
 ipcMain.handle('get-session-partition', (event, profileId) => {
   // Each profile gets a persistent partition for isolated cookies/storage
-  return `persist:profile-${profileId}`;
+  const partitionName = `persist:profile-${profileId}`;
+  // Set up media permissions for this profile's session
+  const ses = session.fromPartition(partitionName);
+  setupSessionPermissions(ses);
+  return partitionName;
 });
 
 ipcMain.handle('get-user-data-path', () => {
@@ -695,6 +721,10 @@ app.whenReady().then(() => {
     copyright: '© 2026 A-flat Minor. info@aflatminor.com',
     credits: 'Multi-profile Google account manager with isolated browser sessions.'
   });
+
+  // Set up media permissions for default session
+  setupSessionPermissions(session.defaultSession);
+
   // Create custom menu with correct app name
   const template = [
     {
