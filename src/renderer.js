@@ -219,11 +219,17 @@ function render() {
 // Update the avatar shown in the tab bar to indicate current profile
 function renderTabBarAvatar() {
   const accountColorLine = document.getElementById('account-color-line');
+  const frameVertical = document.getElementById('frame-vertical');
+  const frameCornerBottom = document.getElementById('frame-corner-bottom');
+  const frameCornerRight = document.getElementById('frame-corner-right');
 
   if (!selectedProfileId) {
     tabBarAvatar.classList.add('empty');
     tabBarAvatar.innerHTML = '';
     accountColorLine.style.setProperty('--account-color', 'transparent');
+    frameVertical.style.setProperty('--account-color', 'transparent');
+    frameCornerBottom.style.setProperty('--account-color', 'transparent');
+    frameCornerRight.style.setProperty('--account-color', 'transparent');
     return;
   }
 
@@ -232,6 +238,9 @@ function renderTabBarAvatar() {
     tabBarAvatar.classList.add('empty');
     tabBarAvatar.innerHTML = '';
     accountColorLine.style.setProperty('--account-color', 'transparent');
+    frameVertical.style.setProperty('--account-color', 'transparent');
+    frameCornerBottom.style.setProperty('--account-color', 'transparent');
+    frameCornerRight.style.setProperty('--account-color', 'transparent');
     return;
   }
 
@@ -240,6 +249,21 @@ function renderTabBarAvatar() {
 
   // Set the top bar color line
   accountColorLine.style.setProperty('--account-color', profile.color);
+
+  // Set the frame colors
+  frameVertical.style.setProperty('--account-color', profile.color);
+  frameCornerBottom.style.setProperty('--account-color', profile.color);
+  frameCornerRight.style.setProperty('--account-color', profile.color);
+
+  // Position the vertical frame line from the selected profile button to the corner
+  const profileIndex = profiles.findIndex(p => p.id === selectedProfileId);
+  const profileBtn = profileList.children[profileIndex];
+  if (profileBtn) {
+    const btnRect = profileBtn.getBoundingClientRect();
+    const startY = btnRect.top;
+    frameVertical.style.top = '44px'; // Just below the corner routing
+    frameVertical.style.height = `${startY - 44}px`;
+  }
 
   if (profile.avatar) {
     tabBarAvatar.innerHTML = `<img src="${profile.avatar}" alt="${profile.name}">`;

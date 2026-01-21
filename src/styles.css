@@ -161,6 +161,46 @@ body {
   transition: background-color 0.2s ease;
 }
 
+/* Account Color Frame - wraps around left side and connects to top */
+#account-color-frame {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 1001;
+}
+
+/* Vertical line along left edge */
+#frame-vertical {
+  position: fixed;
+  left: 0;
+  width: 4px;
+  background: var(--account-color, transparent);
+  transition: background-color 0.2s ease, top 0.2s ease, height 0.2s ease;
+}
+
+/* Horizontal line going right, below traffic lights */
+#frame-corner-bottom {
+  position: fixed;
+  left: 0;
+  top: 40px;
+  height: 4px;
+  width: 88px;
+  background: var(--account-color, transparent);
+  transition: background-color 0.2s ease;
+}
+
+/* Vertical line going up to meet the top bar, right of traffic lights */
+#frame-corner-right {
+  position: fixed;
+  left: 84px;
+  top: 4px;
+  width: 4px;
+  height: 40px;
+  background: var(--account-color, transparent);
+  transition: background-color 0.2s ease;
+}
+
 /* Profile indicator in tab bar */
 #tab-bar-profile {
   display: flex;
