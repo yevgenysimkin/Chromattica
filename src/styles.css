@@ -50,6 +50,7 @@ body {
   justify-content: center;
   gap: 4px;
   padding: 8px 4px;
+  margin-bottom: 8px;
   background: transparent;
   transition: all 0.15s ease;
   -webkit-app-region: no-drag;
@@ -62,6 +63,32 @@ body {
 
 .profile-btn.selected {
   background: rgba(255,255,255,0.15);
+}
+
+/* Active app indicator for selected profile */
+.active-app-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  max-width: 76px;
+}
+
+.active-app-indicator img {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.active-app-indicator span {
+  font-size: 9px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .profile-avatar {

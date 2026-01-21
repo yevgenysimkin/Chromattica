@@ -262,21 +262,24 @@ function renderTabBarAvatar() {
     const btnRect = profileBtn.getBoundingClientRect();
     const sidebarWidth = 88;
 
-    // Sidebar left line: from top (y:4) down to top-left of account
-    frameSidebarLeft.style.height = `${btnRect.top - 4}px`;
+    // Padding above and below the account wrapper
+    const wrapperPadding = 3;
+
+    // Sidebar left line: from top (y:4) down to top-left of account (with padding)
+    frameSidebarLeft.style.height = `${btnRect.top - 4 - wrapperPadding}px`;
 
     // Account top bracket: from left edge (x:0) to right side of sidebar
-    frameAccountTop.style.top = `${btnRect.top}px`;
+    frameAccountTop.style.top = `${btnRect.top - wrapperPadding}px`;
     frameAccountTop.style.left = '0';
     frameAccountTop.style.width = `${sidebarWidth}px`;
 
     // Account right bracket: down the right side of the account
-    frameAccountRight.style.top = `${btnRect.top}px`;
+    frameAccountRight.style.top = `${btnRect.top - wrapperPadding}px`;
     frameAccountRight.style.left = `${sidebarWidth - 4}px`;
-    frameAccountRight.style.height = `${btnRect.height}px`;
+    frameAccountRight.style.height = `${btnRect.height + wrapperPadding * 2}px`;
 
     // Account bottom bracket: from right side to left edge
-    frameAccountBottom.style.top = `${btnRect.bottom - 4}px`;
+    frameAccountBottom.style.top = `${btnRect.bottom - 4 + wrapperPadding}px`;
     frameAccountBottom.style.width = `${sidebarWidth}px`;
   }
 
@@ -808,6 +811,29 @@ function renderProfiles() {
     label.className = 'profile-label';
     label.textContent = profile.name;
     btn.appendChild(label);
+
+    // Show active app indicator for selected profile
+    if (profile.id === selectedProfileId) {
+      const activeAppId = activeAppByProfile[profile.id];
+      const apps = appsByProfile[profile.id] || [];
+      const activeApp = apps.find(app => app.id === activeAppId);
+
+      if (activeApp) {
+        const appIndicator = document.createElement('div');
+        appIndicator.className = 'active-app-indicator';
+
+        const appIcon = document.createElement('img');
+        appIcon.src = activeApp.icon;
+        appIcon.alt = activeApp.name;
+        appIndicator.appendChild(appIcon);
+
+        const appName = document.createElement('span');
+        appName.textContent = activeApp.name;
+        appIndicator.appendChild(appName);
+
+        btn.appendChild(appIndicator);
+      }
+    }
 
     btn.addEventListener('click', () => selectProfile(profile.id));
     btn.addEventListener('contextmenu', (e) => showProfileContextMenu(e, profile));
