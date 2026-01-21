@@ -76,13 +76,15 @@ body {
   color: white;
   transition: all 0.15s ease;
   overflow: hidden;
+  border: 4px solid var(--profile-color, #666);
+  box-sizing: border-box;
 }
 
 .profile-btn.selected .profile-avatar {
   width: 44px;
   height: 44px;
   font-size: 17px;
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.4);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.3);
 }
 
 .profile-avatar img {
@@ -146,6 +148,17 @@ body {
   -webkit-app-region: drag;
   position: relative;
   z-index: 1000;
+}
+
+/* Account color line at top of tab bar */
+#account-color-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--account-color, transparent);
+  transition: background-color 0.2s ease;
 }
 
 /* Profile indicator in tab bar */
@@ -946,27 +959,38 @@ webview.hidden {
   border-color: #3B82F6;
 }
 
-#color-picker {
+#color-picker,
+#edit-color-picker {
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
   justify-content: center;
   margin-bottom: 20px;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .color-option {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   cursor: pointer;
-  transition: transform 0.1s;
+  transition: transform 0.1s, opacity 0.1s;
 }
 
 .color-option:hover {
-  transform: scale(1.1);
+  transform: scale(1.15);
 }
 
 .color-option.selected {
   box-shadow: 0 0 0 3px rgba(255,255,255,0.5);
+}
+
+.color-option.unavailable {
+  opacity: 0.25;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .modal-buttons {

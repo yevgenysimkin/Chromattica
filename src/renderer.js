@@ -1,6 +1,30 @@
 // Chrome user agent to make Google services work properly
 const CHROME_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
 
+// 20 distinct color options for profiles
+const PROFILE_COLORS = [
+  '#3B82F6', // Blue
+  '#EF4444', // Red
+  '#F97316', // Orange
+  '#22C55E', // Green
+  '#A855F7', // Purple
+  '#EC4899', // Pink
+  '#14B8A6', // Teal
+  '#F59E0B', // Amber
+  '#6366F1', // Indigo
+  '#84CC16', // Lime
+  '#06B6D4', // Cyan
+  '#F43F5E', // Rose
+  '#8B5CF6', // Violet
+  '#10B981', // Emerald
+  '#FB923C', // Light Orange
+  '#0EA5E9', // Sky
+  '#D946EF', // Fuchsia
+  '#78716C', // Stone
+  '#64748B', // Slate
+  '#FBBF24', // Yellow
+];
+
 // State
 let profiles = [];
 let selectedProfileId = null;
@@ -194,9 +218,12 @@ function render() {
 
 // Update the avatar shown in the tab bar to indicate current profile
 function renderTabBarAvatar() {
+  const accountColorLine = document.getElementById('account-color-line');
+
   if (!selectedProfileId) {
     tabBarAvatar.classList.add('empty');
     tabBarAvatar.innerHTML = '';
+    accountColorLine.style.setProperty('--account-color', 'transparent');
     return;
   }
 
@@ -204,11 +231,15 @@ function renderTabBarAvatar() {
   if (!profile) {
     tabBarAvatar.classList.add('empty');
     tabBarAvatar.innerHTML = '';
+    accountColorLine.style.setProperty('--account-color', 'transparent');
     return;
   }
 
   tabBarAvatar.classList.remove('empty');
   tabBarAvatar.style.background = profile.color;
+
+  // Set the top bar color line
+  accountColorLine.style.setProperty('--account-color', profile.color);
 
   if (profile.avatar) {
     tabBarAvatar.innerHTML = `<img src="${profile.avatar}" alt="${profile.name}">`;
@@ -718,6 +749,7 @@ function renderProfiles() {
     const avatarDiv = document.createElement('div');
     avatarDiv.className = 'profile-avatar';
     avatarDiv.style.background = profile.color;
+    avatarDiv.style.setProperty('--profile-color', profile.color);
 
     if (profile.avatar) {
       const img = document.createElement('img');
@@ -1556,13 +1588,9 @@ function showEditProfileModal(profile) {
   editProfileNameInput.value = profile.name;
   editProfileNameInput.focus();
 
-  // Reset and set color selection
-  editColorPicker.querySelectorAll('.color-option').forEach(opt => {
-    opt.classList.remove('selected');
-    if (opt.dataset.color === profile.color) {
-      opt.classList.add('selected');
-    }
-  });
+  // Render color picker with available colors (current profile's color is available)
+  const usedColors = getUsedColors(profile.id);
+  renderColorPicker(editColorPicker, usedColors, profile.color);
 
   // Populate menu order dropdown
   const currentIndex = profiles.findIndex(p => p.id === profile.id);
@@ -1894,16 +1922,66 @@ async function extractGoogleAvatar(webview, profileId) {
   }
 }
 
+// Color management functions
+function getUsedColors(excludeProfileId = null) {
+  return profiles
+    .filter(p => p.id !== excludeProfileId)
+    .map(p => p.color);
+}
+
+function renderColorPicker(container, usedColors, currentColor = null) {
+  container.innerHTML = '';
+
+  PROFILE_COLORS.forEach(color => {
+    const option = document.createElement('div');
+    option.className = 'color-option';
+    option.dataset.color = color;
+    option.style.background = color;
+
+    // Mark as unavailable if used by another profile
+    if (usedColors.includes(color) && color !== currentColor) {
+      option.classList.add('unavailable');
+    }
+
+    // Mark as selected if it's the current color
+    if (color === currentColor) {
+      option.classList.add('selected');
+    }
+
+    // Click handler
+    option.addEventListener('click', () => {
+      if (option.classList.contains('unavailable')) return;
+
+      container.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+
+      // Update the appropriate state variable
+      if (container.id === 'color-picker') {
+        selectedColor = color;
+      } else if (container.id === 'edit-color-picker') {
+        editSelectedColor = color;
+      }
+    });
+
+    container.appendChild(option);
+  });
+}
+
+function getFirstAvailableColor(usedColors) {
+  return PROFILE_COLORS.find(color => !usedColors.includes(color)) || PROFILE_COLORS[0];
+}
+
 // Modal functions
 function showModal() {
   modalOverlay.classList.remove('hidden');
   profileNameInput.value = '';
   profileNameInput.focus();
 
-  // Reset color selection
-  document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
-  document.querySelector('.color-option').classList.add('selected');
-  selectedColor = '#3B82F6';
+  // Render color picker with available colors
+  const colorPicker = document.getElementById('color-picker');
+  const usedColors = getUsedColors();
+  selectedColor = getFirstAvailableColor(usedColors);
+  renderColorPicker(colorPicker, usedColors, selectedColor);
 }
 
 function hideModal() {
@@ -2054,14 +2132,7 @@ document.getElementById('add-custom-app-btn').addEventListener('click', () => {
   }
 });
 
-// Color picker
-document.querySelectorAll('.color-option').forEach(option => {
-  option.addEventListener('click', () => {
-    document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
-    option.classList.add('selected');
-    selectedColor = option.dataset.color;
-  });
-});
+// Color picker event listeners are now set up dynamically in renderColorPicker()
 
 // Close modal on overlay click
 modalOverlay.addEventListener('click', (e) => {
@@ -2081,14 +2152,7 @@ editProfileOverlay.addEventListener('click', (e) => {
   }
 });
 
-// Edit color picker
-editColorPicker.querySelectorAll('.color-option').forEach(option => {
-  option.addEventListener('click', () => {
-    editColorPicker.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
-    option.classList.add('selected');
-    editSelectedColor = option.dataset.color;
-  });
-});
+// Edit color picker event listeners are now set up dynamically in renderColorPicker()
 
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
