@@ -25,7 +25,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  padding: 50px 0 10px; /* Extra top padding for traffic lights */
+  padding: 51px 0 10px; /* Matches tab-bar height */
   -webkit-app-region: drag;
   position: relative;
   z-index: 1000;
@@ -166,7 +166,7 @@ body {
 
 /* Tab Bar */
 #tab-bar {
-  height: 40px;
+  height: 51px;
   background: #000000;
   display: flex;
   align-items: center;
@@ -1092,7 +1092,7 @@ webview.hidden {
   border-right: 1px solid #888;
   display: flex;
   flex-direction: column;
-  padding: 50px 0 10px;
+  padding: 51px 0 10px; /* Matches tab-bar height */
   transform: translateX(-100%);
   opacity: 0;
   transition: transform 0.2s ease, opacity 0.2s ease;
