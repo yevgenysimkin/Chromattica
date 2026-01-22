@@ -37,6 +37,7 @@ let editSelectedColor = '#3B82F6';
 // DOM Elements
 const profileList = document.getElementById('profile-list');
 const tabsContainer = document.getElementById('tabs-container');
+const addTabBtn = document.getElementById('add-tab-btn');
 const browserContainer = document.getElementById('browser-container');
 const emptyState = document.getElementById('empty-state');
 const modalOverlay = document.getElementById('modal-overlay');
@@ -1385,7 +1386,30 @@ function renderTabs() {
 
     tabsContainer.appendChild(tabEl);
   });
+
+  // Check if tabs overflow and migrate + button if needed
+  checkTabsOverflow();
 }
+
+// Check if tabs container is overflowing and migrate + button accordingly
+function checkTabsOverflow() {
+  if (!tabsContainer || !addTabBtn) return;
+
+  // Use requestAnimationFrame to ensure layout is calculated
+  requestAnimationFrame(() => {
+    const isOverflowing = tabsContainer.scrollWidth > tabsContainer.clientWidth;
+    if (isOverflowing) {
+      addTabBtn.classList.add('migrated');
+      tabsContainer.classList.add('has-migrated-btn');
+    } else {
+      addTabBtn.classList.remove('migrated');
+      tabsContainer.classList.remove('has-migrated-btn');
+    }
+  });
+}
+
+// Listen for window resize to check overflow
+window.addEventListener('resize', checkTabsOverflow);
 
 function renderBrowser() {
   // Remove all existing webviews except keep them cached

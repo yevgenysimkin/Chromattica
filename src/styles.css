@@ -171,7 +171,7 @@ body {
   display: flex;
   align-items: center;
   padding: 0 10px;
-  padding-left: 80px; /* Space for traffic lights on first profile */
+  padding-left: 10px; /* Avatar 10px from left edge of top bar */
   -webkit-app-region: drag;
   position: relative;
   z-index: 1000;
@@ -248,6 +248,7 @@ body {
   display: flex;
   align-items: center;
   margin-right: 10px;
+  flex-shrink: 0;
   -webkit-app-region: no-drag;
 }
 
@@ -279,7 +280,34 @@ body {
   display: flex;
   gap: 2px;
   overflow-x: auto;
+  flex: 1;
+  min-width: 0;
   -webkit-app-region: no-drag;
+}
+
+/* When + button is migrated, leave space for it */
+#tabs-container.has-migrated-btn {
+  margin-left: 34px;
+}
+
+/* Custom scrollbar for tabs container */
+#tabs-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+#tabs-container::-webkit-scrollbar-track {
+  background: #111;
+  border-radius: 4px;
+}
+
+#tabs-container::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+  border: 2.5px solid #111;
+}
+
+#tabs-container::-webkit-scrollbar-thumb:hover {
+  background: #666;
 }
 
 .tab {
@@ -350,7 +378,16 @@ body {
   color: #888;
   font-size: 18px;
   cursor: pointer;
+  flex-shrink: 0;
+  margin-left: 6px;
   -webkit-app-region: no-drag;
+}
+
+/* When add-tab-btn is moved next to avatar (tabs overflowed) */
+.add-tab-btn.migrated {
+  position: absolute;
+  left: 44px; /* Right after avatar (10px + 28px avatar + 6px gap) */
+  margin-left: 0;
 }
 
 .add-tab-btn:hover {
@@ -358,9 +395,10 @@ body {
   color: #fff;
 }
 
-/* Tab Bar Spacer - pushes items to the right */
+/* Tab Bar Spacer - small gap before right-side buttons */
 #tab-bar-spacer {
-  flex: 1;
+  width: 10px;
+  flex-shrink: 0;
   -webkit-app-region: drag;
 }
 
@@ -761,6 +799,26 @@ body {
   padding: 4px 0;
 }
 
+/* Custom scrollbar for bookmark dropdown */
+.bookmark-dropdown::-webkit-scrollbar {
+  width: 8px;
+}
+
+.bookmark-dropdown::-webkit-scrollbar-track {
+  background: #252525;
+  border-radius: 4px;
+}
+
+.bookmark-dropdown::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+  border: 2.5px solid #252525; /* Creates a 3px wide thumb */
+}
+
+.bookmark-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
 .bookmark-dropdown.hidden {
   display: none;
 }
@@ -816,6 +874,26 @@ body {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
   z-index: 800;
   padding: 4px 0;
+}
+
+/* Custom scrollbar for bookmark submenu */
+.bookmark-submenu::-webkit-scrollbar {
+  width: 8px;
+}
+
+.bookmark-submenu::-webkit-scrollbar-track {
+  background: #252525;
+  border-radius: 4px;
+}
+
+.bookmark-submenu::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+  border: 2.5px solid #252525;
+}
+
+.bookmark-submenu::-webkit-scrollbar-thumb:hover {
+  background: #666;
 }
 
 .bookmark-submenu.hidden {
