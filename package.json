@@ -1,7 +1,7 @@
 {
   "name": "chromattica",
   "productName": "Chromattica [beta]",
-  "version": "1.0.1b",
+  "version": "1.0.1-beta",
   "description": "Multi-profile Google account manager with isolated browser sessions",
   "main": "src/main.js",
   "scripts": {
@@ -19,7 +19,8 @@
     "electron-builder": "^24.9.1"
   },
   "dependencies": {
-    "adm-zip": "^0.5.16"
+    "adm-zip": "^0.5.16",
+    "electron-updater": "^6.7.3"
   },
   "build": {
     "appId": "com.chromattica.app",
@@ -30,6 +31,11 @@
     "files": [
       "src/**/*"
     ],
+    "publish": {
+      "provider": "github",
+      "owner": "yevgenysimkin",
+      "repo": "Chromattica"
+    },
     "mac": {
       "category": "public.app-category.productivity",
       "icon": "src/icons/icon.png",

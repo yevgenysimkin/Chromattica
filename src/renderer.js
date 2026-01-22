@@ -1,6 +1,3 @@
-// Chrome user agent to make Google services work properly
-const CHROME_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
-
 // 20 distinct color options for profiles
 const PROFILE_COLORS = [
   '#3B82F6', // Blue
@@ -44,8 +41,6 @@ const browserContainer = document.getElementById('browser-container');
 const emptyState = document.getElementById('empty-state');
 const modalOverlay = document.getElementById('modal-overlay');
 const profileNameInput = document.getElementById('profile-name-input');
-const addMenuContainer = document.getElementById('add-menu-container');
-const addMenu = document.getElementById('add-menu');
 const appModalOverlay = document.getElementById('app-modal-overlay');
 const appSearchInput = document.getElementById('app-search-input');
 const editProfileOverlay = document.getElementById('edit-profile-overlay');
@@ -1438,9 +1433,7 @@ function renderBrowser() {
     webview.id = webviewId;
     webview.setAttribute('partition', `persist:profile-${profileIdForWebview}`);
     webview.setAttribute('src', activeTab.url);
-    webview.setAttribute('useragent', CHROME_USER_AGENT);
     webview.setAttribute('allowpopups', 'true');
-    webview.setAttribute('webpreferences', 'contextIsolation=no, javascript=yes');
 
     // Update tab title when page loads
     webview.addEventListener('page-title-updated', (e) => {
@@ -1536,9 +1529,7 @@ function renderAppWebview(appId) {
     // Use currentUrl only if it's a valid http(s) URL, otherwise use app.url
     const srcUrl = (app.currentUrl && app.currentUrl.startsWith('http')) ? app.currentUrl : app.url;
     webview.setAttribute('src', srcUrl);
-    webview.setAttribute('useragent', CHROME_USER_AGENT);
     webview.setAttribute('allowpopups', 'true');
-    webview.setAttribute('webpreferences', 'contextIsolation=no, javascript=yes');
 
     // Save URL when navigation finishes
     webview.addEventListener('did-navigate', () => {
@@ -2094,22 +2085,13 @@ window.addEventListener('beforeunload', () => {
 
 // Event listeners
 
-// Add menu toggle
+// Add account button - go directly to account creation
 document.getElementById('add-btn').addEventListener('click', () => {
-  addMenu.classList.toggle('hidden');
-});
-
-// Add menu options
-document.getElementById('add-account-option').addEventListener('click', () => {
-  addMenu.classList.add('hidden');
   showModal();
 });
 
-// Close add menu when clicking outside
+// Close menus when clicking outside
 document.addEventListener('click', (e) => {
-  if (!addMenuContainer.contains(e.target)) {
-    addMenu.classList.add('hidden');
-  }
   // Close bookmark dropdowns when clicking outside
   const isBookmarkElement = e.target.closest('.bookmark-folder') ||
                             e.target.closest('.bookmark-overflow-btn') ||
@@ -2229,7 +2211,6 @@ document.addEventListener('keydown', (e) => {
     hideAppSlideout();
     hideBitwardenPanel();
     hideLastPassPanel();
-    addMenu.classList.add('hidden');
   }
   if ((e.metaKey || e.ctrlKey) && e.key === 't') {
     e.preventDefault();
@@ -2333,13 +2314,15 @@ addBookmarkBtn.addEventListener('click', addBookmark);
 importBookmarksBtn.addEventListener('click', importBookmarks);
 
 // Set user agent for Bitwarden webview to work properly
-bitwardenWebview.addEventListener('dom-ready', () => {
-  bitwardenWebview.setUserAgent(CHROME_USER_AGENT);
+bitwardenWebview.addEventListener('dom-ready', async () => {
+  const userAgent = await window.electronAPI.getUserAgent();
+  bitwardenWebview.setUserAgent(userAgent);
 });
 
 // Set user agent for LastPass webview to work properly
-lastpassWebview.addEventListener('dom-ready', () => {
-  lastpassWebview.setUserAgent(CHROME_USER_AGENT);
+lastpassWebview.addEventListener('dom-ready', async () => {
+  const userAgent = await window.electronAPI.getUserAgent();
+  lastpassWebview.setUserAgent(userAgent);
 });
 
 extensionsModalOverlay.addEventListener('click', (e) => {
@@ -2347,6 +2330,89 @@ extensionsModalOverlay.addEventListener('click', (e) => {
     hideExtensionsModal();
   }
 });
+
+// Auto-updater UI
+const updateBanner = document.getElementById('update-banner');
+const updateMessage = document.getElementById('update-message');
+const updateActionBtn = document.getElementById('update-action-btn');
+const updateDismissBtn = document.getElementById('update-dismiss-btn');
+const updateProgress = document.getElementById('update-progress');
+const updateProgressBar = document.getElementById('update-progress-bar');
+
+let pendingUpdateVersion = null;
+
+// Listen for update status from main process
+window.electronAPI.onUpdateStatus((data) => {
+  switch (data.status) {
+    case 'checking':
+      // Silently checking, don't show banner
+      break;
+
+    case 'available':
+      pendingUpdateVersion = data.version;
+      updateMessage.textContent = `Version ${data.version} is available!`;
+      updateActionBtn.textContent = 'Download';
+      updateActionBtn.disabled = false;
+      updateProgress.classList.add('hidden');
+      updateBanner.classList.remove('hidden');
+      break;
+
+    case 'not-available':
+      // No update available, keep banner hidden
+      break;
+
+    case 'downloading':
+      updateMessage.textContent = `Downloading update... ${Math.round(data.percent)}%`;
+      updateActionBtn.textContent = 'Downloading...';
+      updateActionBtn.disabled = true;
+      updateProgress.classList.remove('hidden');
+      updateProgressBar.style.width = `${data.percent}%`;
+      break;
+
+    case 'downloaded':
+      updateMessage.textContent = 'Update ready to install!';
+      updateActionBtn.textContent = 'Restart Now';
+      updateActionBtn.disabled = false;
+      updateProgress.classList.add('hidden');
+      break;
+
+    case 'error':
+      updateMessage.textContent = 'Update failed. Try again later.';
+      updateActionBtn.textContent = 'Retry';
+      updateActionBtn.disabled = false;
+      updateProgress.classList.add('hidden');
+      // Auto-hide after 5 seconds on error
+      setTimeout(() => {
+        updateBanner.classList.add('hidden');
+      }, 5000);
+      break;
+  }
+});
+
+updateActionBtn.addEventListener('click', async () => {
+  const btnText = updateActionBtn.textContent;
+
+  if (btnText === 'Download' || btnText === 'Retry') {
+    updateActionBtn.textContent = 'Starting...';
+    updateActionBtn.disabled = true;
+    await window.electronAPI.downloadUpdate();
+  } else if (btnText === 'Restart Now') {
+    await window.electronAPI.installUpdate();
+  }
+});
+
+updateDismissBtn.addEventListener('click', () => {
+  updateBanner.classList.add('hidden');
+});
+
+// Check for updates on startup (after a short delay)
+setTimeout(async () => {
+  try {
+    await window.electronAPI.checkForUpdates();
+  } catch (e) {
+    console.log('Auto-update check failed:', e);
+  }
+}, 3000);
 
 // Initialize app
 init();

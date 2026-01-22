@@ -5,6 +5,18 @@ const { createWriteStream } = require('fs');
 const { pipeline } = require('stream/promises');
 const AdmZip = require('adm-zip');
 
+// Lazy-load auto-updater to avoid initialization issues at startup
+let autoUpdater = null;
+function getAutoUpdater() {
+  if (!autoUpdater) {
+    autoUpdater = require('electron-updater').autoUpdater;
+    autoUpdater.autoDownload = false;
+    autoUpdater.autoInstallOnAppQuit = true;
+    setupAutoUpdaterEvents();
+  }
+  return autoUpdater;
+}
+
 // Disable sandbox to fix font rendering on macOS
 // (Electron sandbox blocks access to system fonts)
 app.commandLine.appendSwitch('no-sandbox');
@@ -27,8 +39,14 @@ const loadedExtensions = {}; // { profileId: [{ id, name, icon, path }] }
 // Track sessions that have had permission handlers set up
 const configuredSessions = new Set();
 
+// Set a realistic User-Agent for all sessions
+const userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
+
 // Set up media permission handlers for a session (camera, microphone, etc.)
 function setupSessionPermissions(ses) {
+  // Set the User-Agent for the session
+  ses.setUserAgent(userAgent);
+
   // Only configure each session once
   const sessionId = ses.storagePath || 'default';
   if (configuredSessions.has(sessionId)) return;
@@ -709,6 +727,10 @@ ipcMain.handle('get-extension-icon', async (event, iconPath) => {
 });
 
 app.whenReady().then(() => {
+  // Force dark theme
+  const { nativeTheme } = require('electron');
+  nativeTheme.themeSource = 'dark';
+
   // Set dock icon on macOS
   if (process.platform === 'darwin' && app.dock) {
     app.dock.setIcon(path.join(__dirname, 'icons', 'chromattica_c_icon.png'));
@@ -717,10 +739,13 @@ app.whenReady().then(() => {
   // Set About panel options
   app.setAboutPanelOptions({
     applicationName: 'Chromattica [beta]',
-    applicationVersion: '1.0.1b',
+    applicationVersion: '1.0.1-beta',
     copyright: '© 2026 A-flat Minor. info@aflatminor.com',
     credits: 'Multi-profile Google account manager with isolated browser sessions.'
   });
+
+  // Set User-Agent for the default session
+  session.defaultSession.setUserAgent(userAgent);
 
   // Set up media permissions for default session
   setupSessionPermissions(session.defaultSession);
@@ -794,4 +819,71 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+// Auto-updater event handlers (called when updater is first initialized)
+function setupAutoUpdaterEvents() {
+  autoUpdater.on('checking-for-update', () => {
+    if (mainWindow) {
+      mainWindow.webContents.send('update-status', { status: 'checking' });
+    }
+  });
+
+  autoUpdater.on('update-available', (info) => {
+    if (mainWindow) {
+      mainWindow.webContents.send('update-status', {
+        status: 'available',
+        version: info.version,
+        releaseNotes: info.releaseNotes
+      });
+    }
+  });
+
+  autoUpdater.on('update-not-available', () => {
+    if (mainWindow) {
+      mainWindow.webContents.send('update-status', { status: 'not-available' });
+    }
+  });
+
+  autoUpdater.on('download-progress', (progress) => {
+    if (mainWindow) {
+      mainWindow.webContents.send('update-status', {
+        status: 'downloading',
+        percent: progress.percent
+      });
+    }
+  });
+
+  autoUpdater.on('update-downloaded', () => {
+    if (mainWindow) {
+      mainWindow.webContents.send('update-status', { status: 'downloaded' });
+    }
+  });
+
+  autoUpdater.on('error', (err) => {
+    if (mainWindow) {
+      mainWindow.webContents.send('update-status', { status: 'error', message: err.message });
+    }
+  });
+}
+
+// IPC handlers for auto-updater (lazy-load updater on first use)
+ipcMain.handle('check-for-updates', () => {
+  getAutoUpdater().checkForUpdates();
+});
+
+ipcMain.handle('download-update', () => {
+  getAutoUpdater().downloadUpdate();
+});
+
+ipcMain.handle('install-update', () => {
+  getAutoUpdater().quitAndInstall();
+});
+
+ipcMain.handle('get-app-version', () => {
+  return app.getVersion();
+});
+
+ipcMain.handle('get-user-agent', () => {
+  return userAgent;
 });

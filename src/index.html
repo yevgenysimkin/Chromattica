@@ -23,11 +23,8 @@
     <!-- Profile Sidebar -->
     <div id="sidebar">
       <div id="profile-list"></div>
-      <div id="add-menu-container">
-        <button id="add-btn" class="add-btn" title="Add">+</button>
-        <div id="add-menu" class="hidden">
-          <button id="add-account-option" class="menu-option">Add Account</button>
-        </div>
+      <div id="add-btn-container">
+        <button id="add-btn" class="add-btn" title="Add Account">+</button>
       </div>
     </div>
 
@@ -306,6 +303,19 @@
 
   <!-- Dropdown Portal (renders above webviews) -->
   <div id="dropdown-portal"></div>
+
+  <!-- Update Notification Banner -->
+  <div id="update-banner" class="hidden">
+    <div class="update-content">
+      <span class="update-icon">🔄</span>
+      <span id="update-message">A new version is available!</span>
+      <button id="update-action-btn" class="update-btn">Download</button>
+      <button id="update-dismiss-btn" class="update-dismiss-btn">×</button>
+    </div>
+    <div id="update-progress" class="hidden">
+      <div id="update-progress-bar"></div>
+    </div>
+  </div>
 
   <script src="renderer.js"></script>
 </body>

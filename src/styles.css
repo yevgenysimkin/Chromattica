@@ -1182,46 +1182,12 @@ webview.hidden {
   color: #000;
 }
 
-/* Add Menu */
-#add-menu-container {
-  position: relative;
+/* Add Button Container */
+#add-btn-container {
   display: flex;
   justify-content: center;
   padding: 8px;
   -webkit-app-region: no-drag;
-}
-
-#add-menu {
-  position: absolute;
-  bottom: 50px;
-  left: 0;
-  background: #333;
-  border-radius: 8px;
-  padding: 4px;
-  min-width: 120px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  z-index: 100;
-}
-
-#add-menu.hidden {
-  display: none;
-}
-
-.menu-option {
-  display: block;
-  width: 100%;
-  padding: 8px 12px;
-  border: none;
-  background: transparent;
-  color: #fff;
-  font-size: 13px;
-  text-align: left;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.menu-option:hover {
-  background: #444;
 }
 
 /* App Picker Modal */
@@ -1599,4 +1565,94 @@ webview.hidden {
 
 .webstore-btn svg {
   flex-shrink: 0;
+}
+
+/* Update Banner */
+#update-banner {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  z-index: 2000;
+  overflow: hidden;
+  min-width: 300px;
+  max-width: 400px;
+}
+
+#update-banner.hidden {
+  display: none;
+}
+
+.update-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+.update-icon {
+  font-size: 24px;
+}
+
+#update-message {
+  flex: 1;
+  font-size: 14px;
+  color: #fff;
+}
+
+.update-btn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.update-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.update-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.update-dismiss-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.update-dismiss-btn:hover {
+  color: #fff;
+}
+
+#update-progress {
+  height: 4px;
+  background: #333;
+}
+
+#update-progress.hidden {
+  display: none;
+}
+
+#update-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+  width: 0%;
+  transition: width 0.3s ease;
 }

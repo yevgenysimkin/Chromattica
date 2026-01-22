@@ -18,5 +18,15 @@ contextBridge.exposeInMainWorld('electronAPI', {
   selectExtensionFolder: () => ipcRenderer.invoke('select-extension-folder'),
   getExtensionIcon: (iconPath) => ipcRenderer.invoke('get-extension-icon', iconPath),
   openExtensionPopup: (profileId, extensionId) => ipcRenderer.invoke('open-extension-popup', profileId, extensionId),
-  importBookmarks: () => ipcRenderer.invoke('import-bookmarks')
+  importBookmarks: () => ipcRenderer.invoke('import-bookmarks'),
+
+  // Auto-updater
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+  downloadUpdate: () => ipcRenderer.invoke('download-update'),
+  installUpdate: () => ipcRenderer.invoke('install-update'),
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  getUserAgent: () => ipcRenderer.invoke('get-user-agent'),
+  onUpdateStatus: (callback) => {
+    ipcRenderer.on('update-status', (event, data) => callback(data));
+  }
 });
