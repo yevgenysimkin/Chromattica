@@ -739,7 +739,7 @@ app.whenReady().then(() => {
   // Set About panel options
   app.setAboutPanelOptions({
     applicationName: 'Chromattica [beta]',
-    applicationVersion: '1.0.1-beta',
+    applicationVersion: '1.1.0-beta',
     copyright: '© 2026 A-flat Minor. info@aflatminor.com',
     credits: 'Multi-profile Google account manager with isolated browser sessions.'
   });
